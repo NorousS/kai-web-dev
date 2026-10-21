@@ -1,0 +1,300 @@
+{
+  "project": "Task Manager",
+  "branchName": "codex/task-manager",
+  "description": "Учебный MVC Task Manager",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Compose, миграции и главная",
+      "description": "Реализовать: compose, миграции и главная",
+      "acceptanceCriteria": [
+        "Чистый и повторный запуск Compose успешны; БД сохраняется в volume",
+        "Ошибка миграции запрещает старт приложения; главная доступна",
+        "CSRF middleware защищает POST",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 1,
+      "dependencies": [],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 2,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/2",
+      "issueDatabaseId": 5967481140
+    },
+    {
+      "id": "US-002",
+      "title": "Регистрация",
+      "description": "Реализовать: регистрация",
+      "acceptanceCriteria": [
+        "Имя 3–50 Unicode-символов; email корректен, до 100, уникален без регистра",
+        "Пароль от 8 символов и до 72 байт, хранится bcrypt-хеш",
+        "Невалидная форма 422, пароль не возвращается",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 2,
+      "dependencies": [
+        "US-001"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 3,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/3",
+      "issueDatabaseId": 5967481610
+    },
+    {
+      "id": "US-003",
+      "title": "Вход, выход и сессии",
+      "description": "Реализовать: вход, выход и сессии",
+      "acceptanceCriteria": [
+        "Сессия TTL 24 часа; случайный токен, в БД только SHA-256",
+        "Logout отзывает сессию; cookie HttpOnly и SameSite=Lax",
+        "Истёкшая/поддельная сессия и блокированный аккаунт не авторизуются",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 3,
+      "dependencies": [
+        "US-002"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 4,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/4",
+      "issueDatabaseId": 5967482043
+    },
+    {
+      "id": "US-004",
+      "title": "Создание и список задач",
+      "description": "Реализовать: создание и список задач",
+      "acceptanceCriteria": [
+        "Название обязательно, не более 150 Unicode-символов",
+        "По умолчанию Новая и Средний; видны только свои задачи",
+        "Срок необязателен; описание сохраняется",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 4,
+      "dependencies": [
+        "US-003"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 5,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/5",
+      "issueDatabaseId": 5967482509
+    },
+    {
+      "id": "US-005",
+      "title": "Просмотр задачи",
+      "description": "Реализовать: просмотр задачи",
+      "acceptanceCriteria": [
+        "Показаны все поля задачи",
+        "Чужая и отсутствующая задача возвращают 404",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 5,
+      "dependencies": [
+        "US-004"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 6,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/6",
+      "issueDatabaseId": 5967482928
+    },
+    {
+      "id": "US-006",
+      "title": "Редактирование задачи",
+      "description": "Реализовать: редактирование задачи",
+      "acceptanceCriteria": [
+        "Изменяются название, описание, статус, приоритет, срок",
+        "Допустимые статусы new/in_progress/completed, приоритеты low/medium/high",
+        "Неверные enum и даты дают 422; чужую задачу менять нельзя",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 6,
+      "dependencies": [
+        "US-005"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 7,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/7",
+      "issueDatabaseId": 5967483360
+    },
+    {
+      "id": "US-007",
+      "title": "Удаление задачи",
+      "description": "Реализовать: удаление задачи",
+      "acceptanceCriteria": [
+        "Форма требует подтверждения; удаление только POST с CSRF",
+        "Владелец удаляет задачу; чужая задача 404; GET не удаляет",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 7,
+      "dependencies": [
+        "US-005"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 8,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/8",
+      "issueDatabaseId": 5967483770
+    },
+    {
+      "id": "US-008",
+      "title": "Поиск и фильтр",
+      "description": "Реализовать: поиск и фильтр",
+      "acceptanceCriteria": [
+        "Поиск названия без регистра работает вместе со статусом",
+        "Параметры сохраняются в форме и URL; новые задачи первыми",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 8,
+      "dependencies": [
+        "US-004"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 9,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/9"
+    },
+    {
+      "id": "US-009",
+      "title": "Комментарии",
+      "description": "Реализовать: комментарии",
+      "acceptanceCriteria": [
+        "Непустой комментарий к своей задаче; автор и время отображаются",
+        "HTML экранируется; чужую задачу комментировать нельзя",
+        "После удаления задачи комментарии исчезают",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 9,
+      "dependencies": [
+        "US-005",
+        "US-007"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 10,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/10"
+    },
+    {
+      "id": "US-010",
+      "title": "Профиль",
+      "description": "Реализовать: профиль",
+      "acceptanceCriteria": [
+        "Можно менять имя и email с исходной валидацией",
+        "Повторный email даёт 422; роль нельзя изменить через форму",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 10,
+      "dependencies": [
+        "US-003"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 11,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/11"
+    },
+    {
+      "id": "US-011",
+      "title": "CLI администратора",
+      "description": "Реализовать: cli администратора",
+      "acceptanceCriteria": [
+        "Администратор создаётся отдельной командой, пароль из stdin/терминала",
+        "Нет встроенного пароля; созданный администратор входит в приложение",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 11,
+      "dependencies": [
+        "US-003"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 12,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/12"
+    },
+    {
+      "id": "US-012",
+      "title": "Панель администратора",
+      "description": "Реализовать: панель администратора",
+      "acceptanceCriteria": [
+        "Администратор видит пользователей и любые задачи и удаляет задачи",
+        "Обычному пользователю 403; администратор не редактирует чужую задачу",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 12,
+      "dependencies": [
+        "US-005",
+        "US-011"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 13,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/13"
+    },
+    {
+      "id": "US-013",
+      "title": "Блокировка пользователей",
+      "description": "Реализовать: блокировка пользователей",
+      "acceptanceCriteria": [
+        "Блокировка транзакционно отзывает все сессии и запрещает вход",
+        "Разблокировка требует нового входа; прежняя cookie не оживает",
+        "Нельзя блокировать администраторов",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 13,
+      "dependencies": [
+        "US-012"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 14,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/14"
+    },
+    {
+      "id": "US-014",
+      "title": "Приёмка, Docker и README",
+      "description": "Реализовать: приёмка, docker и readme",
+      "acceptanceCriteria": [
+        "Все истории подтверждены HTTP/БД и browser/CLI проверками",
+        "go test ./..., go vet ./..., go build ./..., gofmt проходят внутри Docker",
+        "README воспроизводит чистый запуск; desktop/mobile проверены",
+        "Go build/vet и релевантные тесты проходят",
+        "Для UI выполнена браузерная проверка"
+      ],
+      "priority": 14,
+      "dependencies": [
+        "US-001",
+        "US-002",
+        "US-003",
+        "US-004",
+        "US-005",
+        "US-006",
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010",
+        "US-011",
+        "US-012",
+        "US-013"
+      ],
+      "passes": false,
+      "notes": "",
+      "issueNumber": 15,
+      "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/15"
+    }
+  ]
+}
