@@ -4,3 +4,4 @@ graphify-out/
 bin/
 coverage.out
 *.test
+.playwright-cli/
