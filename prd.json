@@ -16,8 +16,8 @@
       ],
       "priority": 1,
       "dependencies": [],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "Docker clean/repeat start; intentional failed migration prevented app start. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 2,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/2",
       "issueDatabaseId": 5967481140
@@ -37,8 +37,8 @@
       "dependencies": [
         "US-001"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "TestRegistrationValidationAndLogin; Unicode boundaries; browser registration. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 3,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/3",
       "issueDatabaseId": 5967481610
@@ -58,8 +58,8 @@
       "dependencies": [
         "US-002"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "Session/logout/CSRF tests; browser login; stale-session regression. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 4,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/4",
       "issueDatabaseId": 5967482043
@@ -79,8 +79,8 @@
       "dependencies": [
         "US-003"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "TestTasksOwnershipValidationCommentsAndDelete; browser create with deadline. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 5,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/5",
       "issueDatabaseId": 5967482509
@@ -99,8 +99,8 @@
       "dependencies": [
         "US-004"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "Ownership tests; second browser context foreign task404. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 6,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/6",
       "issueDatabaseId": 5967482928
@@ -120,8 +120,8 @@
       "dependencies": [
         "US-005"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "HTTP validation and browser edit completed/high/date. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 7,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/7",
       "issueDatabaseId": 5967483360
@@ -140,8 +140,8 @@
       "dependencies": [
         "US-005"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "HTTP delete+CSRF; browser owner confirmation+404. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 8,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/8",
       "issueDatabaseId": 5967483770
@@ -160,8 +160,8 @@
       "dependencies": [
         "US-004"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "TestSearchAndFilterWorkTogether; browser combined query/status URL. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 9,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/9",
       "issueDatabaseId": 5967484225
@@ -182,8 +182,8 @@
         "US-005",
         "US-007"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "HTTP comments/XSS/cascade; browser submit/read comment. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 10,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/10",
       "issueDatabaseId": 5967484725
@@ -202,8 +202,8 @@
       "dependencies": [
         "US-003"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "TestProfileValidationAndRoleCannotChange; browser profile update. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 11,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/11",
       "issueDatabaseId": 5967485235
@@ -222,8 +222,8 @@
       "dependencies": [
         "US-003"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "TestCreateAdminCLIAndLogin; real CLI admin used by browser. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 12,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/12",
       "issueDatabaseId": 5967485663
@@ -243,8 +243,8 @@
         "US-005",
         "US-011"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "HTTP admin tests; browser foreign detail no edit and deletion. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 13,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/13",
       "issueDatabaseId": 5967486198
@@ -264,8 +264,8 @@
       "dependencies": [
         "US-012"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "HTTP old session replay checks; browser block/unblock and login. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 14,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/14",
       "issueDatabaseId": 5967486686
@@ -297,8 +297,8 @@
         "US-012",
         "US-013"
       ],
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "Docker full build/vet/test/gofmt; browser1440/390; persistence/failgate; docs/verification.md. Verification: docs/verification.md. Source code remains local.",
       "issueNumber": 15,
       "issueUrl": "https://github.com/NorousS/kai-web-dev/issues/15",
       "issueDatabaseId": 5967487083
