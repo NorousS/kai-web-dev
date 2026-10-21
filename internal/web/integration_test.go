@@ -350,3 +350,30 @@ func TestRegistrationAcceptsMinimumNameAndPasswordBoundaries(t *testing.T) {
 		b.get("/tasks", 200)
 	}
 }
+
+func TestLoginFormWorksAfterStaleSession(t *testing.T) {
+	f := setup(t)
+	user := f.seed("user@example.com", "user")
+	expired := "expired-token-for-login-form"
+	hash := sha256.Sum256([]byte(expired))
+	if err := f.store.CreateSession(context.Background(), user.ID, hex.EncodeToString(hash[:]), time.Now().Add(-time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	for _, token := range []string{"forged", expired} {
+		t.Run(token, func(t *testing.T) {
+			caseFixture := *f
+			caseFixture.t = t
+			b := caseFixture.browser()
+			target, _ := url.Parse(f.server.URL)
+			b.client.Jar.SetCookies(target, []*http.Cookie{{Name: "session", Value: token, Path: "/"}})
+			body := b.get("/login", http.StatusOK)
+			match := csrfField.FindStringSubmatch(body)
+			if len(match) != 2 {
+				t.Fatal("login form must contain a CSRF token")
+			}
+			// Submit the exact form just received, without a second GET that could repair the CSRF binding.
+			b.request("POST", "/login", url.Values{"email": {"user@example.com"}, "password": {testPassword}, "_csrf": {match[1]}}, http.StatusSeeOther)
+			b.get("/tasks", http.StatusOK)
+		})
+	}
+}

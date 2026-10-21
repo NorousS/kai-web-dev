@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"html/template"
+	"log/slog"
 	"net/http"
 	"net/mail"
 	"strconv"
@@ -54,6 +55,7 @@ func New(store *model.Store, secure bool) *gin.Engine {
 	}).ParseFS(assets, "templates.html"))
 	r := gin.New()
 	r.Use(gin.Recovery(), s.middleware)
+	r.GET("/favicon.ico", func(c *gin.Context) { c.Status(http.StatusNoContent) })
 	r.GET("/static/style.css", func(c *gin.Context) { b, _ := assets.ReadFile("style.css"); c.Data(200, "text/css; charset=utf-8", b) })
 	r.GET("/static/bootstrap.min.css", func(c *gin.Context) {
 		b, _ := assets.ReadFile("bootstrap.min.css")
@@ -141,6 +143,20 @@ func (s *server) middleware(c *gin.Context) {
 	c.Header("X-Content-Type-Options", "nosniff")
 	c.Header("Cache-Control", "no-store")
 	session, _ := c.Cookie("session")
+	// Bind forms to the effective session, after discarding expired/revoked cookies.
+	if session != "" {
+		user, err := s.store.SessionUser(c.Request.Context(), tokenHash(session))
+		if err == nil && !user.IsBlocked {
+			c.Set("user", user)
+		} else if err != nil && !errors.Is(err, model.ErrNotFound) {
+			s.dbError(c, err)
+			c.Abort()
+			return
+		} else {
+			s.cookie(c, "session", "", -1)
+			session = ""
+		}
+	}
 	csrf, _ := c.Cookie("csrf")
 	parts := strings.Split(csrf, ".")
 	if len(parts) != 2 || !hmac.Equal([]byte(parts[1]), []byte(s.signature(parts[0], session))) {
@@ -160,18 +176,6 @@ func (s *server) middleware(c *gin.Context) {
 			s.fail(c, 403, "Не удалось проверить форму. Обновите страницу.")
 			c.Abort()
 			return
-		}
-	}
-	if token, err := c.Cookie("session"); err == nil && token != "" {
-		user, err := s.store.SessionUser(c.Request.Context(), tokenHash(token))
-		if err == nil && !user.IsBlocked {
-			c.Set("user", user)
-		} else if err != nil && !errors.Is(err, model.ErrNotFound) {
-			s.fail(c, 503, "База данных временно недоступна")
-			c.Abort()
-			return
-		} else {
-			s.cookie(c, "session", "", -1)
 		}
 	}
 	c.Next()
@@ -206,6 +210,7 @@ func (s *server) render(c *gin.Context, status int, page string, data gin.H) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.Status(status)
 	if err := s.templates.ExecuteTemplate(c.Writer, "layout", data); err != nil {
+		slog.Error("Ошибка вывода страницы", "page", page, "error", err)
 		_ = c.Error(err)
 	}
 }
@@ -218,6 +223,7 @@ func (s *server) dbError(c *gin.Context, err error) {
 	} else if errors.Is(err, model.ErrForbidden) {
 		s.fail(c, 403, "Доступ запрещён")
 	} else {
+		slog.Error("Ошибка обращения к БД", "error", err)
 		s.fail(c, 503, "База данных временно недоступна")
 	}
 }
