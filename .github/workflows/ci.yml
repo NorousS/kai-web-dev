@@ -29,7 +29,10 @@ jobs:
           TEST_DATABASE_URL: host=127.0.0.1 user=tracker password=tracker dbname=tracker_test port=5432 sslmode=disable
         run: |
           go mod tidy
-          echo "Go module tidy completed"\n          unformatted="$(gofmt -l $(find . -name '*.go'))"\n          if [ -n "$unformatted" ]; then echo "Unformatted Go files: $unformatted"; exit 1; fi
+          echo "Go module tidy completed"
+          gofmt -l $(find . -name '*.go') > /tmp/unformatted.txt
+          cat /tmp/unformatted.txt
+          test ! -s /tmp/unformatted.txt
           go test ./... -v
           go vet ./...
           go build ./cmd/server
