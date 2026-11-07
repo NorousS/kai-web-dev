@@ -1,0 +1,395 @@
+openapi: 3.0.3
+info:
+  title: Flowboard Task Tracker API
+  version: 1.0.0
+  description: |
+    Учебный Task Tracker на Go/Gin, GORM и PostgreSQL.
+    Доступ к защищённым маршрутам через JWT cookie или Authorization Bearer.
+    Роли: user/admin и owner/manager/member внутри проекта.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+  - cookieAuth: []
+tags:
+  - name: Auth
+    description: Регистрация и серверные сессии
+  - name: Projects
+    description: Проекты, участники и передача владения
+  - name: Tasks
+    description: Задачи, отчёты и ревью
+  - name: Admin
+    description: Глобальное администрирование
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Создать пользователя и сессию
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '200':
+          description: JWT и пользователь
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Вход по email и паролю
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: JWT и пользователь
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Отозвать текущую сессию и удалить cookie
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Текущий пользователь
+      responses:
+        '200':
+          description: Пользователь
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+  /api/users:
+    get:
+      tags: [Projects]
+      summary: Поиск зарегистрированных пользователей
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 2 }
+      responses:
+        '200':
+          description: Список пользователей (до 15)
+  /api/dashboard:
+    get:
+      tags: [Projects]
+      summary: Количество проектов, задач, проверок и назначенных задач
+      responses:
+        '200':
+          description: Статистика из кэша TTL 10 сек
+  /api/projects:
+    get:
+      tags: [Projects]
+      summary: Список доступных проектов
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Объект с массивом projects (до 100)
+    post:
+      tags: [Projects]
+      summary: Создать проект, стать владельцем
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProjectInput' }
+      responses:
+        '201': { description: Созданный проект }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/projects/{projectID}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+    get:
+      tags: [Projects]
+      summary: Проект с участниками (нужен доступ)
+      responses:
+        '200': { description: Проект и массив members }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Projects]
+      summary: Изменить проект (управляющий или владелец)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProjectInput' }
+      responses:
+        '200': { description: Изменённый проект }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Projects]
+      summary: Удалить проект (создатель или текущий владелец)
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/projects/{projectID}/invitations:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+    post:
+      tags: [Projects]
+      summary: Добавить зарегистрированного пользователя по email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '201': { $ref: '#/components/responses/OK' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/projects/{projectID}/members/{userID}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+      - $ref: '#/components/parameters/UserID'
+    patch:
+      tags: [Projects]
+      summary: Владелец меняет роль участника или передаёт владение
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { type: string, enum: [member, manager, owner] }
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Projects]
+      summary: Исключить участника (владелец) или покинуть проект
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/projects/{projectID}/tasks:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+    get:
+      tags: [Tasks]
+      summary: Список задач проекта
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [all, todo, in_progress, in_review, done] }
+        - name: priority
+          in: query
+          schema: { type: string, enum: [all, low, medium, high, critical] }
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: assignee
+          in: query
+          schema: { type: integer }
+      responses:
+        '200': { description: Объект с массивом tasks (до 300), включая urgency и latest_review }
+    post:
+      tags: [Tasks]
+      summary: Создать задачу (управляющий/владелец)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TaskInput' }
+      responses:
+        '201': { description: Созданная задача }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/projects/{projectID}/tasks/{taskID}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+      - $ref: '#/components/parameters/TaskID'
+    patch:
+      tags: [Tasks]
+      summary: Изменить задачу либо исполнитель начинает работу
+      description: Управляющий передаёт TaskInput (пока задача не на ревью и не готова). Исполнитель передаёт только `{ "status":"in_progress" }` для TODO.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TaskInput' }
+      responses:
+        '200': { description: Изменённая задача }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/projects/{projectID}/tasks/{taskID}/submit:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+      - $ref: '#/components/parameters/TaskID'
+    post:
+      tags: [Tasks]
+      summary: Исполнитель отправляет задачу на ревью
+      description: Обязательны описание работы и/или HTTP(S)-URL. Переводит TODO/IN_PROGRESS в IN_REVIEW.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewInput' }
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/projects/{projectID}/tasks/{taskID}/review:
+    parameters:
+      - $ref: '#/components/parameters/ProjectID'
+      - $ref: '#/components/parameters/TaskID'
+    post:
+      tags: [Tasks]
+      summary: Управляющий одобряет или отклоняет чужую работу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [approved, rejected] }
+                comment: { type: string, maxLength: 3000 }
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: Список пользователей (только глобальный admin)
+      responses:
+        '200': { description: Массив users (до 200) }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/admin/users/{userID}/role:
+    parameters:
+      - $ref: '#/components/parameters/UserID'
+    patch:
+      tags: [Admin]
+      summary: Изменить глобальную роль пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { type: string, enum: [admin, user] }
+      responses:
+        '200': { $ref: '#/components/responses/OK' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    cookieAuth: { type: apiKey, in: cookie, name: tt_session }
+  parameters:
+    ProjectID:
+      name: projectID
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    TaskID:
+      name: taskID
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    UserID:
+      name: userID
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+  responses:
+    OK:
+      description: Операция выполнена
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: { type: boolean }
+    BadRequest:
+      description: Ошибка валидации
+    Unauthorized:
+      description: Требуется действующая JWT-сессия
+    Forbidden:
+      description: Недостаточно прав
+    NotFound:
+      description: Объект не найден
+    Conflict:
+      description: Конфликт состояния или уже существующая запись
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [user, admin] }
+        created_at: { type: string, format: date-time }
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        email: { type: string, format: email }
+        password: { type: string, format: password, minLength: 10 }
+    LoginResponse:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        token: { type: string, description: Bearer JWT; also set in HttpOnly cookie }
+    ProjectInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 120 }
+        description: { type: string, maxLength: 2000 }
+    TaskInput:
+      type: object
+      required: [title, priority, urgency_override]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 160 }
+        description: { type: string, maxLength: 10000 }
+        status: { type: string, readOnly: true }
+        priority: { type: string, enum: [low, medium, high, critical] }
+        urgency_override: { type: string, enum: [auto, green, yellow, red, critical] }
+        epic: { type: string, maxLength: 100 }
+        tags: { type: string, maxLength: 400, example: 'dev,backend' }
+        assignee_id: { type: integer, nullable: true }
+        due_at: { type: string, format: date-time, nullable: true }
+    ReviewInput:
+      type: object
+      description: Заполните description и/или evidence_url
+      properties:
+        description: { type: string, maxLength: 10000 }
+        evidence_url: { type: string, format: uri, maxLength: 1000 }

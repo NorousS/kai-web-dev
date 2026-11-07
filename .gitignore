@@ -1,0 +1,10 @@
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+coverage/
+*.exe
+*.test
+backend/go.sum
