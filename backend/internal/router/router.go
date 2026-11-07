@@ -49,5 +49,6 @@ func New(s *service.Service, db *gorm.DB, secureCookie bool) *gin.Engine {
 	auth.POST("/projects/:projectID/tasks/:taskID/review", h.ReviewTask)
 	auth.GET("/admin/users", h.AdminUsers)
 	auth.PATCH("/admin/users/:userID/role", h.AdminRole)
+	registerHTMLRoutes(r, s, secureCookie)
 	return r
 }

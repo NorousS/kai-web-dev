@@ -34,7 +34,5 @@ jobs:
           go test ./... -v
           go vet ./...
           go build ./cmd/server
-      - name: JavaScript syntax
-        run: node --check frontend/app.js
       - name: Docker image build
         run: docker build --progress=plain -t task-tracker:ci .

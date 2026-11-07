@@ -1,0 +1,8 @@
+{{define "content"}}
+<div class="page-title"><div><h1>Проекты</h1><p>Создание проектов и работа с участниками.</p></div></div>
+<div class="two-col"><section class="card"><h2>Новый проект</h2><form method="post" action="/projects" class="stack">
+<input type="hidden" name="_csrf" value="{{.CSRF}}"><label>Название<input name="name" required minlength="2" maxlength="120"></label><label>Описание<textarea name="description" rows="4" maxlength="5000"></textarea></label><button class="button" type="submit">Создать проект</button>
+</form></section><section><h2>Список проектов</h2><form class="filter-row" action="/projects" method="get"><input name="q" value="{{.Search}}" placeholder="Поиск по названию"><button class="button secondary">Найти</button></form>
+{{if .Projects}}<div class="list">{{range .Projects}}<a class="list-item" href="/projects/{{.ID}}"><strong>{{.Name}}</strong><small>{{.TasksCount}} задач · {{role .MyRole}}</small></a>{{end}}</div>{{else}}<p class="empty">Проектов нет.</p>{{end}}
+</section></div>
+{{end}}

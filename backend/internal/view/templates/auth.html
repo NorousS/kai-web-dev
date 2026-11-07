@@ -1,0 +1,13 @@
+{{define "content"}}
+<section class="auth-box"><h1>{{.Title}}</h1>
+{{if .Register}}<p class="muted">Создайте аккаунт для работы с проектами.</p>{{else}}<p class="muted">Введите данные учётной записи.</p>{{end}}
+<form method="post" action="{{if .Register}}/register{{else}}/login{{end}}" class="stack">
+<input type="hidden" name="_csrf" value="{{.CSRF}}">
+{{if .Register}}<label>Имя<input name="name" required minlength="2" maxlength="100" autocomplete="name" value="{{.Name}}"></label>{{end}}
+<label>Email<input type="email" name="email" required maxlength="255" autocomplete="email" value="{{.Email}}"></label>
+<label>Пароль<input type="password" name="password" required {{if .Register}}minlength="10" maxlength="128" autocomplete="new-password"{{else}}autocomplete="current-password"{{end}}></label>
+<button class="button" type="submit">{{if .Register}}Зарегистрироваться{{else}}Войти{{end}}</button>
+</form>
+<p class="auth-switch">{{if .Register}}Уже есть аккаунт? <a href="/login">Войти</a>{{else}}Нет аккаунта? <a href="/register">Зарегистрироваться</a>{{end}}</p>
+</section>
+{{end}}

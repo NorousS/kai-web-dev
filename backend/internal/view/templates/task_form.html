@@ -1,0 +1,13 @@
+{{define "content"}}
+<div class="breadcrumbs"><a href="/projects/{{.Project.ID}}">{{.Project.Name}}</a> / {{.Title}}</div>
+<h1>{{.Title}}</h1>
+<section class="card form-card"><form method="post" class="stack" action="{{if .Edit}}/projects/{{.Project.ID}}/tasks/{{.Task.ID}}/update{{else}}/projects/{{.Project.ID}}/tasks{{end}}">
+<input type="hidden" name="_csrf" value="{{.CSRF}}"><label>Название задачи<input name="title" required minlength="2" maxlength="160" value="{{if .Edit}}{{.Task.Title}}{{end}}"></label>
+<label>Описание<textarea name="description" rows="5" maxlength="10000">{{if .Edit}}{{.Task.Description}}{{end}}</textarea></label>
+<div class="form-grid"><label>Базовый приоритет<select name="priority" required><option value="low" {{if and .Edit (eq .Task.Priority "low")}}selected{{end}}>Низкий</option><option value="medium" {{if or (not .Edit) (eq .Task.Priority "medium")}}selected{{end}}>Средний</option><option value="high" {{if and .Edit (eq .Task.Priority "high")}}selected{{end}}>Высокий</option><option value="critical" {{if and .Edit (eq .Task.Priority "critical")}}selected{{end}}>Критический</option></select></label>
+<label>Индикатор по сроку<select name="urgency_override"><option value="auto" {{if or (not .Edit) (eq .Task.UrgencyOverride "auto")}}selected{{end}}>Автоматически</option><option value="green" {{if and .Edit (eq .Task.UrgencyOverride "green")}}selected{{end}}>Зелёный</option><option value="yellow" {{if and .Edit (eq .Task.UrgencyOverride "yellow")}}selected{{end}}>Жёлтый</option><option value="red" {{if and .Edit (eq .Task.UrgencyOverride "red")}}selected{{end}}>Красный</option><option value="critical" {{if and .Edit (eq .Task.UrgencyOverride "critical")}}selected{{end}}>Мигающий красный</option></select></label></div>
+<div class="form-grid"><label>Тип / эпик<input name="epic" maxlength="100" value="{{if .Edit}}{{.Task.Epic}}{{end}}" placeholder="dev, design, manager"></label><label>Теги через запятую<input name="tags" maxlength="400" value="{{if .Edit}}{{.Task.Tags}}{{end}}"></label></div>
+<div class="form-grid"><label>Исполнитель<select name="assignee_id"><option value="">Не назначен</option>{{range .Members}}<option value="{{.UserID}}" {{if and $.Edit $.Task.AssigneeID (sameID $.Task.AssigneeID .UserID)}}selected{{end}}>{{.Name}}</option>{{end}}</select></label><label>Дедлайн (UTC)<input type="datetime-local" name="due_at" value="{{if .Edit}}{{datetimeInput .Task.DueAt}}{{end}}"></label></div>
+<div class="actions"><button class="button" type="submit">{{if .Edit}}Сохранить задачу{{else}}Создать задачу{{end}}</button><a href="/projects/{{.Project.ID}}">Отмена</a></div>
+</form></section>
+{{end}}
