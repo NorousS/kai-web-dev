@@ -263,12 +263,38 @@ func (h *Pages) Project(c *gin.Context) {
 			CanEdit:   canManage && (task.Status == "todo" || task.Status == "in_progress"),
 		})
 	}
-	h.Render(c, "project", 200, gin.H{"Title": p.Name, "Project": p, "Members": members, "Tasks": cards, "CanManage": canManage, "IsOwner": p.OwnerID == user.ID, "CanDelete": p.OwnerID == user.ID || p.CreatedBy == user.ID, "Status": filter.Status, "Search": filter.Query})
+	h.Render(c, "project", 200, gin.H{"Title": p.Name, "Project": p, "Members": members, "Tasks": cards, "Columns": groupProjectTasks(cards), "CanManage": canManage, "IsOwner": p.OwnerID == user.ID, "CanDelete": p.OwnerID == user.ID || p.CreatedBy == user.ID, "Status": filter.Status, "Search": filter.Query})
 }
 
 type PageTask struct {
 	service.TaskView
 	CanStart, CanSubmit, CanReview, CanEdit bool
+}
+
+// TaskColumn represents a single server-rendered Kanban lane.
+type TaskColumn struct {
+	Key   string
+	Title string
+	Tasks []PageTask
+}
+
+// groupProjectTasks keeps a fixed order, including empty lanes.
+func groupProjectTasks(tasks []PageTask) []TaskColumn {
+	columns := []TaskColumn{
+		{Key: "todo", Title: "К выполнению"},
+		{Key: "in_progress", Title: "В работе"},
+		{Key: "in_review", Title: "На ревью"},
+		{Key: "done", Title: "Завершено"},
+	}
+	for _, task := range tasks {
+		for i := range columns {
+			if columns[i].Key == task.Status {
+				columns[i].Tasks = append(columns[i].Tasks, task)
+				break
+			}
+		}
+	}
+	return columns
 }
 
 func (h *Pages) UpdateProject(c *gin.Context) {

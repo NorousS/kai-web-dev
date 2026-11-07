@@ -105,4 +105,18 @@ func TestServerRenderedFormsWithPostgres(t *testing.T) {
 	if project.Code != 200 || !strings.Contains(project.Body.String(), "Write documentation") {
 		t.Fatalf("task not rendered in HTML: %d %s", project.Code, project.Body.String())
 	}
+	// Project view is a four-column server-rendered Kanban board.
+	for _, want := range []string{`class="kanban-board"`, `aria-label="К выполнению"`, `aria-label="В работе"`, `aria-label="На ревью"`, `aria-label="Завершено"`} {
+		if !strings.Contains(project.Body.String(), want) {
+			t.Fatalf("project Kanban page missing %q", want)
+		}
+	}
+	// No JavaScript is required to put the created task into the todo lane.
+	board := project.Body.String()
+	todo := strings.Index(board, `class="kanban-column kanban-todo"`)
+	working := strings.Index(board, `class="kanban-column kanban-in_progress"`)
+	taskPos := strings.Index(board, "Write documentation")
+	if !(todo >= 0 && taskPos > todo && working > taskPos) {
+		t.Fatalf("task should render inside the TODO Kanban column")
+	}
 }
