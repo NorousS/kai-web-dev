@@ -50,13 +50,33 @@ docker compose down -v          # ОПАСНО: удалить данные Post
 
 Если порт 8080 занят, в `.env` установите `APP_PORT=8081` и откройте http://localhost:8081.
 
-## Архитектура
+## Архитектура MVC
 
-- **api** — Gin REST API, JWT с `HttpOnly` cookie, серверные сессии (отзыв при выходе), роли пользователей и проектов, валидация входных данных.
-- **db** — PostgreSQL 16, модели GORM и Code First `AutoMigrate` при старте.
-- **web** — Nginx, JS SPA с History API роутингом, адаптивная доска Kanban, прокси `/api` на Gin.
-- **cache** — короткий потокобезопасный in-process TTL кэш статистики; инвалидируется при изменении проектов/задач. Redis не требуется.
-- **Swagger** — OpenAPI 3 документ `docs/openapi.yaml`, UI использует swagger-ui-dist CDN (для его отображения необходим интернет).
+**MVC + Service + Repository** (подробная схема: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+
+- **Model** — `backend/internal/model`: GORM-сущности, связи, расчёт срочности; `migration` — версионированные Code First-миграции (`schema_migrations`).
+- **View** — `frontend/index.html`, `frontend/app.js`, `frontend/style.css`: адаптивное JS SPA, отдаётся Nginx; `internal/view` содержит HTML-представление Swagger.
+- **Controller** — `backend/internal/controller`: Gin, валидация запросов, JWT/cookies, ответы JSON.
+- **Service** — `backend/internal/service`: бизнес-правила, права доступа, транзакции задач и ревью, разделённые на `service.go`, `projects.go`, `tasks.go`.
+- **Repository** — `backend/internal/repository`: запросы GORM/PostgreSQL в `store.go`, `projects.go`, `tasks.go`, `dashboard.go`.
+- **Router** — `backend/internal/router`: маршруты и middleware; `cmd/server` — точка входа; `cache` — TTL-кэш статистики.
+
+```text
+frontend/              View (HTML, CSS, JS)
+backend/cmd/server/     Точка входа
+backend/internal/
+  model/                Model + бизнес-сущности
+  view/                 Представление Swagger
+  controller/           Controller: Gin + JSON + валидация
+  service/              Use cases и права доступа
+  repository/           GORM + PostgreSQL
+  router/               Маршрутизация
+  migration/            Версионированные миграции
+  config/               Переменные окружения
+  cache/                Кэш статистики
+```
+
+**Swagger:** `docs/openapi.yaml`, страница `/swagger` использует CDN Swagger UI (нужен доступ к интернету).
 
 ## Роли
 
@@ -83,6 +103,6 @@ go test ./...
 
 GitHub Actions `.github/workflows/ci.yml` выполняет `go test`, `go vet`, `go build` и проверяет синтаксис JS. Полный ручной сценарий описан в `docs/TESTING.md`.
 
-> Автоматические миграции GORM подходят для учебного MVP. Для промышленной эксплуатации нужны версионированные миграции, полноценный аудит действий, rate limiting, HTTPS, резервное копирование, email-приглашения и управление восстановлением доступа.
+> Миграции v1 работают через Code First/GORM с регистрацией версии схемы. Для production нужны отдельные проверенные миграции с rollback, полноценный аудит действий, rate limiting, HTTPS, резервное копирование, email-приглашения и управление восстановлением доступа.
 
 Подробное ТЗ: [docs/TECHNICAL_SPEC.md](docs/TECHNICAL_SPEC.md).

@@ -3,7 +3,7 @@ WORKDIR /src
 RUN apk add --no-cache ca-certificates git
 COPY backend/go.mod ./
 COPY backend/ ./
-RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags='-s -w' -o /task-tracker .
+RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags='-s -w' -o /task-tracker ./cmd/server
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates && adduser -D -u 10001 app

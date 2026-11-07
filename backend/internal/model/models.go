@@ -1,9 +1,7 @@
-package main
+// Package model contains the domain entities and GORM persistence metadata (MVC Model).
+package model
 
-import (
-	"gorm.io/gorm"
-	"time"
-)
+import "time"
 
 type User struct {
 	ID           uint      `json:"id" gorm:"primaryKey"`
@@ -13,23 +11,26 @@ type User struct {
 	Role         string    `json:"role" gorm:"size:12;not null;default:user"`
 	CreatedAt    time.Time `json:"created_at"`
 }
+
 type Session struct {
-	ID        uint      `gorm:"primaryKey"`
-	UserID    uint      `gorm:"index;not null"`
-	TokenHash string    `gorm:"uniqueIndex;size:64;not null"`
-	ExpiresAt time.Time `gorm:"index;not null"`
-	RevokedAt *time.Time
-	CreatedAt time.Time
+	ID        uint       `json:"-" gorm:"primaryKey"`
+	UserID    uint       `json:"-" gorm:"index;not null"`
+	TokenHash string     `json:"-" gorm:"uniqueIndex;size:64;not null"`
+	ExpiresAt time.Time  `json:"-" gorm:"index;not null"`
+	RevokedAt *time.Time `json:"-"`
+	CreatedAt time.Time  `json:"-"`
 }
+
 type Project struct {
 	ID          uint      `json:"id" gorm:"primaryKey"`
 	Name        string    `json:"name" gorm:"size:120;not null"`
 	Description string    `json:"description" gorm:"type:text"`
 	CreatedBy   uint      `json:"created_by" gorm:"not null"`
-	OwnerID     uint      `json:"owner_id" gorm:"not null;index"`
+	OwnerID     uint      `json:"owner_id" gorm:"index;not null"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
 type Membership struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	ProjectID uint      `json:"project_id" gorm:"uniqueIndex:membership_unique;not null"`
@@ -37,6 +38,7 @@ type Membership struct {
 	Role      string    `json:"role" gorm:"size:12;not null"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
 type Task struct {
 	ID              uint       `json:"id" gorm:"primaryKey"`
 	ProjectID       uint       `json:"project_id" gorm:"index;not null"`
@@ -54,6 +56,7 @@ type Task struct {
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
 }
+
 type Review struct {
 	ID          uint       `json:"id" gorm:"primaryKey"`
 	TaskID      uint       `json:"task_id" gorm:"index;not null"`
@@ -67,26 +70,22 @@ type Review struct {
 	ReviewedAt  *time.Time `json:"reviewed_at"`
 }
 
-func migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&User{}, &Session{}, &Project{}, &Membership{}, &Task{}, &Review{})
-}
-
-func urgency(t Task) string {
+func Urgency(t Task, now time.Time) string {
 	if t.UrgencyOverride != "" && t.UrgencyOverride != "auto" {
 		return t.UrgencyOverride
 	}
 	if t.DueAt == nil || t.Status == "done" {
 		return "green"
 	}
-	remaining := time.Until(*t.DueAt)
-	if remaining <= 24*time.Hour {
+	remaining := t.DueAt.Sub(now)
+	switch {
+	case remaining <= 24*time.Hour:
 		return "critical"
-	}
-	if remaining <= 72*time.Hour {
+	case remaining <= 72*time.Hour:
 		return "red"
-	}
-	if remaining <= 7*24*time.Hour {
+	case remaining <= 7*24*time.Hour:
 		return "yellow"
+	default:
+		return "green"
 	}
-	return "green"
 }
