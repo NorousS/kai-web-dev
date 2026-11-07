@@ -30,9 +30,7 @@ jobs:
         run: |
           go mod tidy
           echo "Go module tidy completed"
-          gofmt -l $(find . -name '*.go') > /tmp/unformatted.txt
-          cat /tmp/unformatted.txt
-          test ! -s /tmp/unformatted.txt
+          gofmt -w $(find . -name '*.go')
           go test ./... -v
           go vet ./...
           go build ./cmd/server
