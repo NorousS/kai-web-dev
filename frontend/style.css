@@ -3,3 +3,42 @@
 @media(max-width:1250px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.projects-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.page{padding:30px}.board{grid-template-columns:repeat(4,260px)}}
 @media(max-width:780px){.layout{display:block}.sidebar{position:relative;width:100%;height:auto;padding:12px;display:block}.sidebar .brand{font-size:18px}.sidebar .brand-symbol{width:32px;height:32px}.side-label,.side-bottom{display:none}.menu{display:flex;overflow:auto;margin-top:13px;gap:4px}.menu a{white-space:nowrap;font-size:11px;padding:9px 11px}.topbar{height:49px;padding:0 19px}.top-actions small{display:none}.page{padding:23px 17px}.page-heading{align-items:start;flex-direction:column;margin-bottom:25px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat-card{padding:15px;min-height:132px}.projects-grid{grid-template-columns:1fr}.board{grid-template-columns:repeat(4,245px)}.section-heading.compact{flex-direction:column;align-items:stretch}.filters input{flex:1}.filters select{flex:1}.auth-layout{grid-template-columns:1fr}.auth-side{padding:26px}.auth-art{display:none}.auth-main{min-height:calc(100vh - 100px);padding:30px}.info-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr;gap:0}.tip{align-items:start}.modal{padding:20px}}
 @media(max-width:440px){.project-tools>div{gap:9px}.member{gap:7px}.member .role-tag{font-size:9px;padding:5px}.member-info small{max-width:145px}.topbar{font-size:11px}}
+
+/* Спокойное оформление без отдельного фирменного блока. */
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f6f7f9;color:#27313f}
+h1,h2,h3,h4,.stat-number{font-family:inherit;letter-spacing:normal}
+h1{font-size:29px;font-weight:700}
+.sidebar{width:208px;background:#f8f9fa;border-right:1px solid #e1e5ea;color:#374151;padding:18px 12px}
+.side-label{margin:12px 12px 18px;color:#6b7280;font-size:11px;letter-spacing:.6px}
+.menu a{color:#4b5563;border-radius:6px;font-weight:500;padding:11px 12px}
+.menu a:hover{background:#edf0f3;color:#111827}
+.menu a.active{background:#e2e7ec;color:#1f2937;box-shadow:none}
+.side-bottom{border-top-color:#e1e5ea}
+.account b{color:#26313d}
+.account small,.sidebar .text-btn{color:#667085}
+.topbar{height:62px;padding:0 30px}
+.page{max-width:1320px;padding:30px}
+.page-heading{margin-bottom:24px}
+.page-heading p{line-height:1.5}
+.kicker{color:#64748b;letter-spacing:.7px;font-size:11px;margin-bottom:7px}
+.btn{border-radius:6px;box-shadow:none;background:#426586;font-weight:600}
+.btn:hover{background:#315472;transform:none}
+.btn.secondary:hover{color:#315472;border-color:#aabaca}
+.project-card,.stat-card,.task-card,.info-card,.board-col,.table-wrap,.member-list,.project-tools{border-radius:8px;box-shadow:none}
+.project-card:hover{transform:none;box-shadow:none;border-color:#bac7d3}
+.project-logo{background:#e6ebf1;color:#426586;border-radius:7px}
+.role-tag{background:#ecf0f4;color:#455a6e}
+.tip{background:#edf2f6;color:#405b71;border-radius:8px}
+.tip span{color:#566b7a}
+.auth-layout{grid-template-columns:1fr;background:#f6f7f9}
+.auth-main{min-height:100vh;padding:36px 18px}
+.auth-form{background:#fff;border:1px solid #dfe5eb;border-radius:9px;padding:32px;width:min(420px,100%)}
+.auth-form h2{font-size:27px;letter-spacing:normal}
+.auth-form p{margin-bottom:22px}
+.auth-form .btn{margin-top:14px}
+.switch-auth a,.section-heading a{color:#426586}
+.modal{border-radius:9px;box-shadow:0 18px 45px #16263c35}
+.priority-text.yellow{color:#986800}
+.priority-text.red,.priority-text.critical{color:#bf3345}
+@media(max-width:780px){.sidebar{width:100%;border-right:0;border-bottom:1px solid #e1e5ea}.side-label{display:none}.menu{margin-top:0}.page{padding:20px 16px}.auth-form{padding:24px}.auth-main{min-height:100vh}}
+@media(prefers-reduced-motion:reduce){.priority.critical{animation:none}}

@@ -71,10 +71,13 @@ type Review struct {
 }
 
 func Urgency(t Task, now time.Time) string {
+	if t.Status == "done" {
+		return "green"
+	}
 	if t.UrgencyOverride != "" && t.UrgencyOverride != "auto" {
 		return t.UrgencyOverride
 	}
-	if t.DueAt == nil || t.Status == "done" {
+	if t.DueAt == nil {
 		return "green"
 	}
 	remaining := t.DueAt.Sub(now)
@@ -88,4 +91,25 @@ func Urgency(t Task, now time.Time) string {
 	default:
 		return "green"
 	}
+}
+
+// EffectivePriority returns the priority shown to users. A nearing deadline can
+// increase priority, but it never overwrites the priority set by a manager.
+func EffectivePriority(t Task, now time.Time) string {
+	levels := map[string]int{"low": 0, "medium": 1, "high": 2, "critical": 3}
+	priority := t.Priority
+	if _, ok := levels[priority]; !ok {
+		priority = "low"
+	}
+	if t.Status == "done" {
+		return priority
+	}
+	fromUrgency := map[string]string{
+		"green": "low", "yellow": "medium", "red": "high", "critical": "critical",
+	}
+	deadlinePriority := fromUrgency[Urgency(t, now)]
+	if levels[deadlinePriority] > levels[priority] {
+		return deadlinePriority
+	}
+	return priority
 }

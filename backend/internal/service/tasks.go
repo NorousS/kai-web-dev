@@ -24,14 +24,16 @@ type TaskInput struct {
 }
 type TaskView struct {
 	model.Task
-	Urgency      string        `json:"urgency"`
+	Urgency           string        `json:"urgency"`
+	EffectivePriority string        `json:"effective_priority"`
 	AssigneeName string        `json:"assignee_name"`
 	CreatorName  string        `json:"creator_name"`
 	LatestReview *model.Review `json:"latest_review"`
 }
 
 func (s *Service) TaskView(t model.Task) (TaskView, error) {
-	v := TaskView{Task: t, Urgency: model.Urgency(t, time.Now())}
+	now := time.Now()
+	v := TaskView{Task: t, Urgency: model.Urgency(t, now), EffectivePriority: model.EffectivePriority(t, now)}
 	if u, e := s.repo.UserByID(t.CreatedBy); e == nil {
 		v.CreatorName = u.Name
 	}

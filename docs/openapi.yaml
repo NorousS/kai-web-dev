@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Flowboard Task Tracker API
+  title: Task Tracker API
   version: 1.0.0
   description: |
     Учебный Task Tracker на Go/Gin, GORM и PostgreSQL.
@@ -216,7 +216,7 @@ paths:
           in: query
           schema: { type: integer }
       responses:
-        '200': { description: Объект с массивом tasks (до 300), включая urgency и latest_review }
+        '200': { description: Объект с массивом tasks (до 300), включая urgency, effective_priority и latest_review }
     post:
       tags: [Tasks]
       summary: Создать задачу (управляющий/владелец)

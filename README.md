@@ -1,4 +1,4 @@
-# Flowboard — Task Tracker
+# Task Tracker
 
 Учебный полнофункциональный MVP трекера задач для команд: Go/Gin + GORM + PostgreSQL + JavaScript + JWT + Docker + Swagger.
 
@@ -87,7 +87,7 @@ backend/internal/
 ## Операции и сроки
 
 - Статусы: `todo` → `in_progress` → `in_review` → `done`, отклонённое ревью возвращает `in_progress`.
-- Приоритеты: `low`, `medium`, `high`, `critical` — задаются управляющими отдельно от индикатора дедлайна.
+- Приоритеты: `low`, `medium`, `high`, `critical` — назначаются управляющими; API дополнительно отдаёт `effective_priority`, повышающий отображаемый приоритет при приближении дедлайна. Исходный приоритет остаётся в БД.
 - Автоматический индикатор: более 7 дней — зелёный, ≤7 дней — жёлтый, ≤3 дней — красный, ≤24 часов или просрочка — мигающий красный. Есть ручной `urgency_override`.
 - Фильтры `/api/projects/{id}/tasks?status=&priority=&q=&assignee=` и `/api/projects?q=`.
 - Сессия хранится в PostgreSQL (хэш JTI), JWT годен 7 суток, выход отзывает серверную сессию.
